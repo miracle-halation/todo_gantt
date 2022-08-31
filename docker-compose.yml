@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./infra/db/Dockerfile
-    image: ganntt-mysql
+    image: todo-ganntt-mysql
     ports:
       - "3306:3306"
     environment:
@@ -12,12 +12,16 @@ services:
       TZ: "Asia/Tokyo"
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - db-data:/var/lib/mysql
+      - type: volume
+        source: db-data
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
   app:
     build:
       context: ./backend
       dockerfile: ./../infra/rails/Dockerfile
-    image: ganntt-rails
+    image: todo-ganntt-rails
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 8000 -b '0.0.0.0'"
     volumes:
       - ./backend/:/backend
@@ -31,7 +35,7 @@ services:
     build:
       context: ./frontend
       dockerfile: ./../infra/nuxt/Dockerfile
-    image: ganntt-nuxt
+    image: todo-ganntt-nuxt
     ports:
       - "3000:3000"
     command: yarn dev
